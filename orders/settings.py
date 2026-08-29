@@ -185,5 +185,4 @@ CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-EMAIL_HOST_USER = 'noreply@example.com'
+DEFAULT_FROM_EMAIL = 'noreply@example.com'

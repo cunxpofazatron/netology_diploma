@@ -11,7 +11,7 @@ def send_email_task(subject, message, to_email):
     msg = EmailMultiAlternatives(
         subject=subject,
         body=message,
-        from_email=settings.EMAIL_HOST_USER,
+        from_email=settings.DEFAULT_FROM_EMAIL,
         to=[to_email]
     )
     msg.send()
