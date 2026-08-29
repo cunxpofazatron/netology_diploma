@@ -38,14 +38,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_rest_passwordreset', # Добавили библиотеку токенов
     'rest_framework',
     'rest_framework.authtoken',  # Добавили встроенные токены DRF
     'backend',
-    'django_rest_passwordreset', # Добавили библиотеку токенов
+    'corsheaders',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware'
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -145,3 +148,4 @@ REST_FRAMEWORK = {
 }
 
 AUTH_USER_MODEL = 'backend.User'
+CORS_ALLOW_ALL_ORIGINS = True
