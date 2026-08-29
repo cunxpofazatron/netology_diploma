@@ -11,6 +11,7 @@ click-plugins==1.1.1.2
 click-repl==0.3.0
 Django==6.1
 django-cors-headers==4.9.0
+django-redis==7.0.0
 django-rest-passwordreset==1.6.0
 djangorestframework==3.18.0
 drf-spectacular==0.30.0
