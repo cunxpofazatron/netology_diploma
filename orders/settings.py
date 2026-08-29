@@ -134,12 +134,14 @@ MAILERS = {
         "BACKEND": "django.core.mail.backends.console.EmailBackend",
     }
 }
-DEFAULT_FROM_EMAIL = 'admin@orders-shop.ru'
-
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
+    'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
-    ),
+    ],
+
+    # Добавляем пагинацию:
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10,
 }
 
 AUTH_USER_MODEL = 'backend.User'
