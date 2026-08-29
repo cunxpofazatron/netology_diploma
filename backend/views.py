@@ -14,6 +14,8 @@ from rest_framework.response import Response
 from .models import Shop, Category, Product, ProductInfo, Parameter, ProductParameter
 from .models import Shop, Category, Product, ProductInfo, Parameter, ProductParameter, Order, OrderItem
 from .models import Contact
+from drf_spectacular.utils import extend_schema, inline_serializer
+from rest_framework import serializers
 
 
 class RegisterAccount(APIView):
@@ -67,6 +69,12 @@ class PartnerUpdate(APIView):
     """
     Класс для обновления прайса от поставщика
     """
+    @extend_schema(
+            request=inline_serializer(
+                name="PartnerUpdate",
+                fields={"url": serializers.URLField()}
+            )
+        )
     def post(self, request, *args, **kwargs):
         # Проверки на авторизацию (включим на следующем этапе)
         if not request.user.is_authenticated:
@@ -141,6 +149,21 @@ class BasketView(APIView):
     """
     Класс для работы с корзиной пользователя
     """
+    @extend_schema(
+        request=inline_serializer(
+            name="BasketRequest",
+            fields={
+                "items": inline_serializer(
+                    name="BasketItem",
+                    fields={
+                        "product_info": serializers.IntegerField(),
+                        "quantity": serializers.IntegerField()
+                    },
+                    many=True
+                )
+            }
+        )
+    )
     def get(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             return JsonResponse({'Status': False, 'Error': 'Требуется авторизация'}, status=403)
@@ -192,6 +215,16 @@ class ContactView(APIView):
     """
     Класс для работы с контактами покупателей
     """
+    @extend_schema(
+        request=inline_serializer(
+            name="ContactRequest",
+            fields={
+                "city": serializers.CharField(),
+                "street": serializers.CharField(),
+                "phone": serializers.CharField()
+            }
+        )
+    )
     def get(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             return JsonResponse({'Status': False, 'Error': 'Требуется авторизация'}, status=403)
@@ -232,6 +265,15 @@ class OrderView(APIView):
     """
     Класс для подтверждения заказа и получения истории заказов
     """
+    @extend_schema(
+        request=inline_serializer(
+            name="OrderRequest",
+            fields={
+                "id": serializers.IntegerField(),
+                "contact": serializers.IntegerField()
+            }
+        )
+    )
     def get(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             return JsonResponse({'Status': False, 'Error': 'Требуется авторизация'}, status=403)
