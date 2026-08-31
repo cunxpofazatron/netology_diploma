@@ -11,12 +11,10 @@ from django.contrib.auth.password_validation import validate_password
 from rest_framework.authtoken.models import Token
 from .serializers import UserSerializer, ProductInfoSerializer, OrderSerializer, ContactSerializer
 from rest_framework.response import Response
-from .models import Shop, Category, Product, ProductInfo, Parameter, ProductParameter
-from .models import Shop, Category, Product, ProductInfo, Parameter, ProductParameter, Order, OrderItem
+from .models import Shop, Category, Product, ProductInfo, Parameter, ProductParameter, Order, OrderItem, ConfirmEmailToken
 from .models import Contact
 from drf_spectacular.utils import extend_schema, inline_serializer
 from rest_framework import serializers
-
 
 class RegisterAccount(APIView):
     """
@@ -39,8 +37,10 @@ class RegisterAccount(APIView):
                 user.set_password(request.data['password'])
                 # В задании почта используется как логин, поэтому копируем email в username
                 user.username = request.data['email']
-                user.is_active = True
+                user.is_active = False
                 user.save()
+                token, _ = ConfirmEmailToken.objects.get_or_create(user=user)
+                print(f"\n---> ТОКЕН ПОДТВЕРЖДЕНИЯ ДЛЯ {user.email}: {token.key} <---\n")
                 return JsonResponse({'Status': True})
             else:
                 return JsonResponse({'Status': False, 'Errors': user_serializer.errors})
@@ -317,3 +317,31 @@ class OrderView(APIView):
                 return JsonResponse({'Status': True})
 
         return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы (id заказа и ID контакта)'})
+
+class ConfirmAccount(APIView):
+    """
+    Класс для подтверждения электронной почты
+    """
+    @extend_schema(
+        request=inline_serializer(
+            name="ConfirmAccountRequest",
+            fields={
+                "email": serializers.EmailField(),
+                "token": serializers.CharField()
+            }
+        )
+    )
+    def post(self, request, *args, **kwargs):
+        if {'email', 'token'}.issubset(request.data):
+            token = ConfirmEmailToken.objects.filter(
+                user__email=request.data['email'],
+                key=request.data['token']
+            ).first()
+            if token:
+                token.user.is_active = True
+                token.user.save()
+                token.delete()
+                return JsonResponse({'Status': True})
+            else:
+                return JsonResponse({'Status': False, 'Errors': 'Неправильно указан токен или email'})
+        return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})
